@@ -424,7 +424,6 @@ minecraft-rti-demo/
 ## 📞 Need Help?
 
 - **Issues?** See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
-- **Questions?** Check [FAQ.md](./FAQ.md)
 - **Still stuck?** See [Common Issues & Solutions](./TROUBLESHOOTING.md#installation-issues)
 
 ---
