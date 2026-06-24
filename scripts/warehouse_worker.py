@@ -5,16 +5,10 @@ ORIGIN_X = 100
 ORIGIN_Y = 4
 ORIGIN_Z = 100
 
-fabric_eventhouse_name = "<SET_EVENT_HUB_NAME>"
-fabric_event_stream_endpoint = "<SET_CONNECTION_STRING_IN_FABRIC_BRIDGE>"
-fabric_access_key = "<SET_SAS_KEY_IN_FABRIC_BRIDGE>"
 # Seed with a string so MakeCode infers string[] (not any[]), then clear it.
 event_buffer = [""]
 event_buffer.pop()
-fabric_bridge_outbox = [""]
-fabric_bridge_outbox.pop()
 event_sequence = 0
-fabric_sent_count = 0
 shift_running = False
 
 sections = [
@@ -97,14 +91,9 @@ def event_to_json(event_type, block_name, x, y, z, ts):
     return payload
 
 
-def send_to_fabric_event_stream(payload):
-    global fabric_sent_count
-    if len(fabric_event_stream_endpoint) > 0 and len(fabric_access_key) > 0:
-        # Minecraft Code Builder Python does not support direct outbound HTTP.
-        # Emit bridge-ready records for forwarding to Fabric outside the game.
-        fabric_bridge_outbox.append(payload)
-        fabric_sent_count += 1
-        player.say("FABRIC_EVENT|" + payload)
+def emit_bridge_event(payload):
+    # The external Python bridge listens for chat lines with this prefix.
+    player.say("FABRIC_EVENT|" + payload)
 
 
 def emit_event(event_type, block_name, pt):
@@ -112,7 +101,7 @@ def emit_event(event_type, block_name, pt):
     event_sequence += 1
     payload = event_to_json(event_type, block_name, pt["x"], pt["y"], pt["z"], event_sequence)
     event_buffer.append(payload)
-    send_to_fabric_event_stream(payload)
+    emit_bridge_event(payload)
 
 
 def travel_agent_to(pt):
@@ -152,8 +141,7 @@ def run_warehouse_shift():
     move_block(block["name"], src, dst, block["type"])
 
     player.say(
-        "Shift cycle complete. Events: " + str(len(event_buffer)) +
-        " Fabric bridge queued: " + str(fabric_sent_count)
+        "Shift cycle complete. Events: " + str(len(event_buffer))
     )
 
 
@@ -183,14 +171,6 @@ def on_stop_shift():
     player.say("Shift stopped.")
 
 
-def on_show_fabric_queue():
-    player.say("Fabric bridge queue count: " + str(len(fabric_bridge_outbox)))
-    i = 0
-    while i < len(fabric_bridge_outbox):
-        player.say("FABRIC_EVENT|" + fabric_bridge_outbox[i])
-        i += 1
-
-
 def on_show_events():
     player.say("Event buffer count: " + str(len(event_buffer)))
     i = 0
@@ -201,16 +181,6 @@ def on_show_events():
 
 def on_show_coords():
     log_section_coordinates()
-
-
-def on_set_fabric_placeholder():
-    global fabric_eventhouse_name
-    global fabric_event_stream_endpoint
-    global fabric_access_key
-    fabric_eventhouse_name = "esehusw3ubkjed82txblsk7m_eh"
-    fabric_event_stream_endpoint = "<PASTE_FABRIC_EVENTSTREAM_ENDPOINT>"
-    fabric_access_key = "yURwkG1jXx2NbDv0iGvPJkeZtTHQwjeqF+AEhI9EmsM="
-    player.say("Fabric credentials and Eventhouse name applied.")
 
 
 def shift_worker_loop():
@@ -224,7 +194,5 @@ def shift_worker_loop():
 player.on_chat("run_shift", on_run_shift)
 player.on_chat("stop_shift", on_stop_shift)
 player.on_chat("show_events", on_show_events)
-player.on_chat("show_fabric_queue", on_show_fabric_queue)
 player.on_chat("show_coords", on_show_coords)
-player.on_chat("set_fabric_placeholder", on_set_fabric_placeholder)
 loops.forever(shift_worker_loop)
