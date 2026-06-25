@@ -110,7 +110,7 @@ Coordinate Origin: X=100, Y=4, Z=100
 
 ### Step 3: Copy Builder Code
 
-1. **In VS Code**, open [code/warehouse_builder.py](../scripts/warehouse_builder.py)
+1. **In VS Code**, open [warehouse_builder.py](../scripts/warehouse_builder.py)
 2. **Select All** (Ctrl+A)
 3. **Copy** (Ctrl+C)
 4. **In Code Builder editor**, click in code area
