@@ -463,4 +463,4 @@ const debouncedSearch = useDebounce(searchTerm, 300);
 
 **App built?** → [Complete! You now have end-to-end RTI pipeline]
 
-Next: Explore advanced customizations in [TECHNICAL-REFERENCE.md](./TECHNICAL-REFERENCE.md)
+
