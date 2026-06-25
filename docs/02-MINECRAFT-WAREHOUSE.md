@@ -28,7 +28,7 @@ The warehouse is a sophisticated structure built in Minecraft that serves as you
    - Name: "warehouse_builder"
 
 4. **Copy Code**
-   - Open [warehouse_builder.py](MinecraftWarehouseFabricRTI/scripts/warehouse_builder.py) in VS Code
+   - Open [warehouse_builder.py](../scripts/warehouse_builder.py) in VS Code
    - Copy entire contents
 
 5. **Paste and Run**
