@@ -176,7 +176,7 @@ npm --version
 
 2. **Clone Repository**
    ```bash
-   git clone https://github.com/microsoft/minecraft-rti-demo.git
+   git clone https://github.com/lewisbosher-cmyk/MinecraftWarehouseFabricRTI.git
    cd minecraft-rti-demo
    ```
 
