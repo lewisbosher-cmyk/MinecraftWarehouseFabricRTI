@@ -417,7 +417,7 @@ def section_for_position(x, y, z):
    - Verify event flow
 
 2. **Or build the agent first:**
-   - Use [warehouse_worker.py](../code/warehouse_worker.py)
+   - Use [warehouse_worker.py](../scripts/warehouse_worker.py)
    - Or generate with Copilot using [EXACT-REPLICATION-PROMPT.md](../prompts/EXACT-REPLICATION-PROMPT.md)
 
 ---
