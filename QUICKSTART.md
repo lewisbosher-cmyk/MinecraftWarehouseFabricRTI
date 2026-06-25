@@ -54,7 +54,7 @@ cd MinecraftApp && npm install && cd ..
 2. Create flat world
 3. Press 'C' for Code Builder
 4. Create new Python project
-5. Copy `[Warehouse Builder Script](scripts/warehouse_builder.py)`
+5. Copy `[Warehouse Builder Script]`(scripts/warehouse_builder.py)
 6. Run code (3-4 min to build)
 
 ### 15 min: Connect EventStream
