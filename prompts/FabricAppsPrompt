@@ -1,33 +1,43 @@
-# Create Your Own Fabric App
+# Create Your Own Fabric App: End-to-End Tutorial
 
-This guide will help you replicate the Minecraft Warehouse Operations Copilot app in your own environment using GitHub Copilot and connect it to your own Fabric semantic model.
+This tutorial teaches you how to build a production-ready Microsoft Fabric Analytics web app from scratch using GitHub Copilot, Rayfin, and Fabric App Data packages. You'll learn the pattern by building a complete example, then customize it for your own data and use case.
+
+**What You'll Learn:**
+- How to scaffold a Rayfin + Fabric app using Copilot
+- How to connect to your own Fabric semantic model
+- How to design and query your semantic model tables
+- How to build custom dashboards and KPIs
+- How to deploy to Fabric
 
 ---
 
-## Part 1: Generate the App with GitHub Copilot
+## Part 1: Set Up Your Development Environment
 
 ### Prerequisites
+
+Install these tools before starting:
+
 1. **Node.js (v22)**: Download from https://nodejs.org/dist/v22.22.2/node-v22.22.2-x64.msi
 2. **GitHub Copilot CLI**: Refer to https://github.com/github/copilot-cli
 3. **Playwright CLI**: Run `npm install -g @playwright/cli@latest`
 4. **Azure CLI**: Install from https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
+5. **Fabric Workspace**: Create a new workspace in Fabric (https://app.powerbi.com)
 
-### Step 1: Create a New Repository
+### Step 1: Create Your Project Repository
 
 ```bash
 # Create a new folder for your app
-mkdir my-fabric-app
+### Step 1: Get Your Dataset ID
 cd my-fabric-app
-git init
-```
+### Step 2: Use GitHub Copilot to Scaffold the App
 
 ### Step 2: Copy and Paste This Prompt into GitHub Copilot
 
 Open Terminal in your repo folder and run:
 ```bash
 copilot
-```
-
+Then paste **everything below** into the Copilot CLI to generate a production-ready template:
+### Step 2: Update fabric.yaml
 Then paste **everything below** into the Copilot CLI:
 
 ---
@@ -37,107 +47,221 @@ Then paste **everything below** into the Copilot CLI:
 Create a production-ready Microsoft Fabric Analytics web app named Minecraft Warehouse Operations Copilot using React 19 + TypeScript + Vite + Rayfin + Fabric App Data packages.
 
 Goal:
-Replicate my existing app behavior and structure for a warehouse operations digital twin dashboard backed by a Fabric semantic model.
+- Scaffold a complete, production-ready web app with best practices
+- Make it reusable as a template for different use cases
+- Provide clear hooks for customization and data binding
 
 Tech and package requirements:
-- Use React 19, TypeScript, Vite
-- Use these Fabric/Rayfin packages:
-  - @microsoft/fabric-app-data
-  - @microsoft/fabric-app-data-embed-client
-  - @microsoft/fabric-app-data-proxy
-  - @microsoft/fabric-datagrid
-  - @microsoft/fabric-visuals
-  - @microsoft/fabric-visuals-core
-  - @microsoft/rayfin-auth-provider-fabric
-  - @microsoft/rayfin-client
-  - @microsoft/rayfin-core
-  - @microsoft/rayfin-data
-  - @microsoft/rayfin-lib
-- Add test setup with Vitest and Testing Library
-- Keep linting with ESLint
+### Step 3: Map Your Tables to the App
 
-Fabric connection setup:
-- Create fabric.yaml with:
-  - activeProfile: default
-  - connection alias: warehouseModel
-  - type: semanticModel
-  - datasetId: 06a461b6-11cf-4c70-ad15-ac77be2f2ce4
+Update the `QUERIES` object in `src/App.tsx` to match your table names:
 
-Required semantic model queries:
-- EVALUATE gold_currentinventory
-- EVALUATE gold_heatmap
-- EVALUATE gold_hourlymetrics
-- EVALUATE gold_locationactivity
-- EVALUATE gold_robotmovement
+```typescript
+const QUERIES = {
+   currentInventory: "EVALUATE your_table_name_1",
+   heatmap: "EVALUATE your_table_name_2",
+   hourlyMetrics: "EVALUATE your_table_name_3",
+   locationActivity: "EVALUATE your_table_name_4",
+   robotMovement: "EVALUATE your_table_name_5",
+} as const;
+```
 
-Core UI and behavior to implement:
-- Dashboard title and warehouse operations context
-- Theme toggle (light/dark)
-- KPI cards:
-  - Throughput (from total_events in hourly metrics)
-  - Robot moves
-  - Stock placed
-  - Stock picked
-  - Current total stock
-  - Low-stock alert count (threshold 20)
-- Warehouse digital twin style grid/map with zones such as Loading_Bay, Storage_Area_A, Storage_Area_B, Packing_Station, Forbidden_Zone, Control_Office
-- Activity heatmap by location
-- Replay/timeline controls for heatmap playback (play/pause and frame stepping)
-- Low stock panel listing locations and block type
-- Zone activity breakdown (placed/picked/movements)
-- Robot movement trend by hour
-- Location selection/filter interactions that update detail views
-- Friendly empty states and error fallback UI
-- Keep app responsive for desktop and mobile
+### Step 4: Customize the UI to Match Your Data
 
-Data mapping and robustness requirements:
-- Build typed row mapping helpers from semantic model result tables
-- Handle column name normalization safely (case and missing fields)
-- Use a consistent primitive row type and transform functions for:
-  - inventory points
-  - heatmap points
-  - zone activity stats
-  - robot hour stats
-- Keep throughput sourced from total_events as the reliable metric
-- Include defensive handling for partial or empty query results
+Edit `src/App.tsx` to:
+- Change the dashboard title and description
+- Rename KPI cards to match your metrics
+- Update the grid zones to match your domain
+- Rename columns in data transformation functions
 
-Project structure requirements:
-- Keep a structure similar to:
-  - src/App.tsx
-  - src/fabric.generated.ts
-  - src/components
-  - src/hooks (auth + theme + semantic model query hook)
-  - src/lib (fabric client, rayfin client, data table conversion)
-  - src/services (rayfin auth service)
-  - src/test/setup
-- Include tests for:
-  - semantic model query hook behavior
-  - table conversion utilities
-
-Developer experience requirements:
-- Provide npm scripts for dev, build, lint, test
-- Include predev/prebuild environment generation via rayfin env for Vite
-- Add clear README with setup, run, test, and Fabric portal devUri instructions
-- Do not leave TODO stubs; generate complete working code
-
-At the end:
-1. Show all created/updated files.
-2. Show exact commands to run locally.
-3. Show how to validate the dataset connection and each query.
-
-### 🏁 (End of Copilot Prompt)
-
----
-
-After Copilot completes, run:
-```bash
-npm install
-npm run dev
+Example transformation function:
+```typescript
+function rowsToInventory(rows: DataRow[]): InventoryPoint[] {
+   return rows.map((row) => ({
+      location: String(row.location ?? "Unknown"),
+      blockType: String(row.your_column_name ?? "Unknown"),
+      quantity: Number(row.quantity ?? 0),
+   }));
+}
 ```
 
 ---
 
-## Part 2: Connect to Your Own Semantic Model
+## Part 4: Validate Your Connection
+- Use these Fabric/Rayfin packages:
+### Step 1: Test in Development
+
+1. Run the app:
+  ```bash
+  npm run dev
+  ```
+
+2. Open the browser developer console (F12 → Console tab)
+
+3. Look for debug output like:
+  ```
+  === WAREHOUSE DEBUG ===
+  STATUS: success | isLoading: false
+  ROW COUNT: 42
+  COLUMNS: location, blockType, quantity
+  MAPPED FIRST ROW: { location: "Loading_Bay", blockType: "CHEST", quantity: 15 }
+  ======================
+  ```
+
+4. If you see `status: error`, check:
+  - Dataset ID is correct
+  - Table names match exactly (case matters in the DAX query string)
+  - You have read permissions on the semantic model
+  - Your Fabric environment supports Fabric Apps
+
+### Step 2: Test Each Query Individually
+
+In the Fabric Semantic Model editor, run each DAX query directly:
+
+```dax
+EVALUATE your_table_name_1
+EVALUATE your_table_name_2
+EVALUATE your_table_name_3
+EVALUATE your_table_name_4
+EVALUATE your_table_name_5
+```
+
+If any query returns no results or errors, adjust the table name or columns in `src/App.tsx`.
+
+### Step 3: Verify Column Names Match
+  - @microsoft/fabric-app-data-embed-client
+The debug output shows exact column names returned. Make sure your transformation functions use the **exact same names**:
+  - @microsoft/rayfin-data
+```typescript
+// If debug shows COLUMNS: location, blockType, quantity
+// Then your transformation must access row.location, row.blockType, row.quantity
+const mapped = {
+   location: String(row.location ?? "Unknown"),
+   blockType: String(row.blockType ?? "Unknown"),
+   quantity: Number(row.quantity ?? 0),
+};
+```
+- Add test setup with Vitest and Testing Library
+---
+  - activeProfile: default
+## Part 5: Deploy to Fabric
+
+### Step 1: Build the App
+- EVALUATE gold_heatmap
+```bash
+npm run build:fabric
+```
+- Theme toggle (light/dark)
+### Step 2: Create a Custom App in Fabric
+  - Stock picked
+1. Go to your Fabric workspace
+2. Click **New** → **Custom App**
+3. Upload the `dist/` folder
+  - Low-stock alert count (threshold 20)
+### Step 3: Connect Your Semantic Model
+- Activity heatmap by location
+1. In the Custom App settings, select your semantic model
+2. Configure app permissions
+3. Publish
+- Location selection/filter interactions that update detail views
+### Step 4: Share with Your Team
+- Keep app responsive for desktop and mobile
+1. Click **Share** on your published app
+2. Grant access to team members
+3. They can now access the dashboard in Fabric
+- Keep throughput sourced from total_events as the reliable metric
+---
+  - src/fabric.generated.ts
+## Troubleshooting
+  - src/hooks (auth + theme + semantic model query hook)
+| Issue | Solution |
+|---|---|
+| `Missing required environment variables` | Ensure `fabric.yaml` has correct `datasetId` |
+| `Query returned 0 rows` | Check table names match exactly; run DAX query directly in Semantic Model editor |
+| `undefined is not an object (reading 'rows')` | One of your queries failed; check browser console for error details |
+| `Rayfin error: unauthorized` | Verify you have read permissions on the semantic model in Fabric |
+| `App runs but dashboard is blank` | Check `src/App.tsx` debug console output; look for `status: error` |
+| `Column name not found` | Use the debug output to see exact column names; update transformation functions |
+| `Heatmap/grid is empty` | Ensure your data has non-null location values; check `section_for_position` mapping |
+  - src/services (rayfin auth service)
+---
+- Include predev/prebuild environment generation via rayfin env for Vite
+## Next Steps: Customize for Your Use Case
+- Do not leave TODO stubs; generate complete working code
+Now that you have a working template:
+At the end:
+1. **Replace the domain**: Instead of warehouse zones, map to your domain (regions, departments, etc.)
+2. **Add more KPIs**: Add new cards and queries for metrics that matter to your business
+3. **Customize the UI**: Change colors, fonts, layouts using Tailwind CSS
+4. **Add filters and interactivity**: Connect date pickers, dropdowns, and drill-through navigation
+5. **Enhance visuals**: Add charts, tables, and custom components
+### 🏁 (End of Copilot Prompt)
+---
+---
+## Resources
+After Copilot completes, run:
+- [Fabric App Data Documentation](https://learn.microsoft.com/en-us/fabric/dev-tools/data-connectors)
+- [Rayfin CLI Reference](https://github.com/microsoft/rayfin)
+- [DAX Function Reference](https://learn.microsoft.com/en-us/dax/dax-function-reference)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+npm install
+Happy building! 🚀
+```
+
+---
+
+## Part 2: Design and Build Your Semantic Model
+
+Before connecting your app to data, you need to prepare your Fabric semantic model with the necessary tables and measures.
+
+### Step 1: Choose Your Domain and Define Tables
+
+Decide what domain your app serves (e.g., sales, logistics, HR, supply chain). Define the tables you'll query:
+
+**Example: Warehouse Operations**
+- `gold_currentinventory` — current stock levels by location
+- `gold_heatmap` — activity heatmap data
+- `gold_hourlymetrics` — throughput metrics by hour
+- `gold_locationactivity` — zone activity (placed/picked/movements)
+- `gold_robotmovement` — robot movement stats by hour
+
+**Your Use Case:**
+- Think about what KPIs matter (e.g., revenue, customer churn, headcount)
+- What filters/dimensions do you need (e.g., region, product, time)?
+- What detail views should users drill into?
+
+### Step 2: Create Tables in Your Lakehouse
+
+In your Fabric Lakehouse:
+1. Create delta tables that feed your domain data
+2. Name them clearly and lowercase (e.g., `sales_daily`, `customer_segments`)
+3. Include columns that support the KPIs and filters your app needs
+
+### Step 3: Create a Semantic Model
+
+1. In Fabric, create a new **Semantic Model** connected to your Lakehouse tables
+2. Add calculated columns or DAX measures as needed
+3. Define relationships between tables if necessary
+
+### Step 4: Create "Gold" Query Tables (Views or Measures)
+
+For each DAX query your app will run, create a simple table that returns denormalized results:
+
+**Example DAX for `gold_currentinventory`:**
+```dax
+EVALUATE
+ROW(
+  "location", "Loading_Bay",
+  "blockType", "CHEST",
+  "quantity", 15
+)
+```
+
+In practice, these tables aggregate and summarize your source data to align with your app's needs.
+
+---
+
+## Part 3: Connect Your App to Your Semantic Model
 
 ### Step 1: Get Your Dataset ID
 
