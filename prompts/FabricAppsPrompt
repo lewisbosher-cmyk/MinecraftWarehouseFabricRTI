@@ -2,6 +2,8 @@
 
 Copy and paste everything below into GitHub Copilot in your own repository.
 
+# make sure to add your Fabric Apps Connection code at the top
+
 ---
 
 Create a production-ready Microsoft Fabric Analytics web app named Minecraft Warehouse Operations Copilot using React 19 + TypeScript + Vite + Rayfin + Fabric App Data packages.
