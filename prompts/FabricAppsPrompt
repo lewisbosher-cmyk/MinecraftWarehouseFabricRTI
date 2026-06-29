@@ -1,16 +1,67 @@
-# Replicate Rayfin Fabric App
+# Create Your Own Fabric App
 
-Copy and paste everything below into GitHub Copilot in your own repository.
-
-# make sure to add your Fabric Apps Connection code at the top
+This guide will help you replicate the Minecraft Warehouse Operations Copilot app in your own environment using GitHub Copilot and connect it to your own Fabric semantic model.
 
 ---
+
+## Part 1: Generate the App with GitHub Copilot
+
+### Prerequisites
+1. **Node.js (v22)**: Download from https://nodejs.org/dist/v22.22.2/node-v22.22.2-x64.msi
+2. **GitHub Copilot CLI**: Refer to https://github.com/github/copilot-cli
+3. **Playwright CLI**: Run `npm install -g @playwright/cli@latest`
+4. **Azure CLI**: Install from https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
+
+### Step 1: Create a New Repository
+
+```bash
+# Create a new folder for your app
+mkdir my-fabric-app
+cd my-fabric-app
+git init
+```
+
+### Step 2: Copy and Paste This Prompt into GitHub Copilot
+
+Open Terminal in your repo folder and run:
+```bash
+copilot
+```
+
+Then paste **everything below** into the Copilot CLI:
+
+---
+
+### 🚀 COPILOT PROMPT (Copy Everything From Here)
 
 Create a production-ready Microsoft Fabric Analytics web app named Minecraft Warehouse Operations Copilot using React 19 + TypeScript + Vite + Rayfin + Fabric App Data packages.
 
 Goal:
 Replicate my existing app behavior and structure for a warehouse operations digital twin dashboard backed by a Fabric semantic model.
 
+Tech and package requirements:
+- Use React 19, TypeScript, Vite
+- Use these Fabric/Rayfin packages:
+  - @microsoft/fabric-app-data
+  - @microsoft/fabric-app-data-embed-client
+  - @microsoft/fabric-app-data-proxy
+  - @microsoft/fabric-datagrid
+  - @microsoft/fabric-visuals
+  - @microsoft/fabric-visuals-core
+  - @microsoft/rayfin-auth-provider-fabric
+  - @microsoft/rayfin-client
+  - @microsoft/rayfin-core
+  - @microsoft/rayfin-data
+  - @microsoft/rayfin-lib
+- Add test setup with Vitest and Testing Library
+- Keep linting with ESLint
+
+Fabric connection setup:
+- Create fabric.yaml with:
+  - activeProfile: default
+  - connection alias: warehouseModel
+  - type: semanticModel
+  - datasetId: 06a461b6-11cf-4c70-ad15-ac77be2f2ce4
 
 Required semantic model queries:
 - EVALUATE gold_currentinventory
@@ -73,3 +124,159 @@ At the end:
 1. Show all created/updated files.
 2. Show exact commands to run locally.
 3. Show how to validate the dataset connection and each query.
+
+### 🏁 (End of Copilot Prompt)
+
+---
+
+After Copilot completes, run:
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## Part 2: Connect to Your Own Semantic Model
+
+### Step 1: Get Your Dataset ID
+
+1. Open **Power BI Service** (https://app.powerbi.com)
+2. Navigate to your **Fabric workspace**
+3. Click on your **semantic model**
+4. Copy the **Dataset ID** from the URL:
+   - URL format: `https://app.powerbi.com/groups/{workspace-id}/datasets/{dataset-id}/overview`
+   - Extract the value between `/datasets/` and `/overview`
+
+### Step 2: Update fabric.yaml
+
+Open `fabric.yaml` in your app and replace the `datasetId`:
+
+```yaml
+activeProfile: default
+
+profiles:
+  default:
+    connections:
+      warehouseModel:
+        type: semanticModel
+        datasetId: YOUR_DATASET_ID_HERE  # Replace this with your Dataset ID
+```
+
+### Step 3: Create Your Semantic Model Tables (or Rename Existing Ones)
+
+The app queries these tables. Ensure your semantic model has them with **these exact names** (case-insensitive in DAX, but lowercase in queries):
+
+| Table Name | Purpose |
+|---|---|
+| `gold_currentinventory` | Current stock levels by location |
+| `gold_heatmap` | Activity heatmap data |
+| `gold_hourlymetrics` | Throughput metrics by hour |
+| `gold_locationactivity` | Zone activity (placed/picked/movements) |
+| `gold_robotmovement` | Robot movement stats by hour |
+
+Each table should return rows with the columns your app expects. Example schema:
+
+**gold_currentinventory** columns:
+- `location` (string)
+- `blockType` (string)
+- `quantity` (integer)
+
+**gold_heatmap** columns:
+- `location` (string)
+- `activity` (integer)
+
+**gold_hourlymetrics** columns:
+- `total_events` (integer)
+
+**gold_locationactivity** columns:
+- `zoneType` (string)
+- `totalEvents` (integer)
+- `stockPlaced` (integer)
+- `stockPicked` (integer)
+- `robotMovements` (integer)
+
+**gold_robotmovement** columns:
+- `eventHour` (string)
+- `movementEvents` (integer)
+- `uniqueLocations` (integer)
+
+> **Tip**: If your actual tables have different names, either rename them in your semantic model or update the `QUERIES` object in `src/App.tsx`.
+
+### Step 4: Validate Your Connection
+
+1. Run the app in development:
+   ```bash
+   npm run dev
+   ```
+
+2. Open the browser developer console (F12 → Console tab)
+
+3. Look for debug output like:
+   ```
+   === WAREHOUSE DEBUG ===
+   STATUS: success | isLoading: false
+   ROW COUNT: 42
+   COLUMNS: location, blockType, quantity
+   MAPPED FIRST ROW: { location: "Loading_Bay", blockType: "CHEST", quantity: 15 }
+   ======================
+   ```
+
+4. If you see `status: error`, check:
+   - Dataset ID is correct
+   - Table names match exactly (case matters in the DAX query string)
+   - You have read permissions on the semantic model
+   - Your Fabric environment supports Fabric Apps
+
+### Step 5: Test Each Query Individually
+
+In the Fabric Semantic Model editor, run each DAX query directly to confirm they return data:
+
+```dax
+EVALUATE gold_currentinventory
+EVALUATE gold_heatmap
+EVALUATE gold_hourlymetrics
+EVALUATE gold_locationactivity
+EVALUATE gold_robotmovement
+```
+
+If any query returns no results or errors, adjust the table name or DAX in `src/App.tsx` line ~100.
+
+### Step 6: Deploy to Fabric
+
+1. Build the app:
+   ```bash
+   npm run build:fabric
+   ```
+
+2. In Fabric Portal, create a new **Custom App**
+
+3. Upload the `dist/` folder
+
+4. Connect your semantic model
+
+5. Publish and share
+
+---
+
+## Troubleshooting
+
+| Issue | Solution |
+|---|---|
+| `Missing required environment variables` | Ensure `fabric.yaml` has correct `datasetId` |
+| `Query returned 0 rows` | Check table names match exactly; run DAX query directly in Semantic Model editor |
+| `undefined is not an object (reading 'rows')` | One of your queries failed; check browser console for error details |
+| `Rayfin error: unauthorized` | Verify you have read permissions on the semantic model in Fabric |
+| `App runs but dashboard is blank` | Check `src/App.tsx` debug console output; look for `status: error` |
+
+---
+
+## Next Steps
+
+- Customize the UI in `src/App.tsx`
+- Add more queries to `QUERIES` object
+- Modify warehouse zones in the grid component
+- Style with Tailwind CSS
+- Add more KPI cards
+
+Happy building! 🚀
