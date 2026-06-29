@@ -75,7 +75,7 @@ Press 'q' to quit
 
 ### Step 5: Open in Browser
 
-1. Navigate to http://localhost:5173
+1. Navigate to the Fabric App in you Fabric Environment
 2. You should see the Fabric App loading
 3. Authenticate with your Microsoft account if prompted
 
