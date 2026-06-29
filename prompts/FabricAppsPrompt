@@ -1,0 +1,73 @@
+# Replicate Rayfin Fabric App
+
+Copy and paste everything below into GitHub Copilot in your own repository.
+
+---
+
+Create a production-ready Microsoft Fabric Analytics web app named Minecraft Warehouse Operations Copilot using React 19 + TypeScript + Vite + Rayfin + Fabric App Data packages.
+
+Goal:
+Replicate my existing app behavior and structure for a warehouse operations digital twin dashboard backed by a Fabric semantic model.
+
+
+Required semantic model queries:
+- EVALUATE gold_currentinventory
+- EVALUATE gold_heatmap
+- EVALUATE gold_hourlymetrics
+- EVALUATE gold_locationactivity
+- EVALUATE gold_robotmovement
+
+Core UI and behavior to implement:
+- Dashboard title and warehouse operations context
+- Theme toggle (light/dark)
+- KPI cards:
+  - Throughput (from total_events in hourly metrics)
+  - Robot moves
+  - Stock placed
+  - Stock picked
+  - Current total stock
+  - Low-stock alert count (threshold 20)
+- Warehouse digital twin style grid/map with zones such as Loading_Bay, Storage_Area_A, Storage_Area_B, Packing_Station, Forbidden_Zone, Control_Office
+- Activity heatmap by location
+- Replay/timeline controls for heatmap playback (play/pause and frame stepping)
+- Low stock panel listing locations and block type
+- Zone activity breakdown (placed/picked/movements)
+- Robot movement trend by hour
+- Location selection/filter interactions that update detail views
+- Friendly empty states and error fallback UI
+- Keep app responsive for desktop and mobile
+
+Data mapping and robustness requirements:
+- Build typed row mapping helpers from semantic model result tables
+- Handle column name normalization safely (case and missing fields)
+- Use a consistent primitive row type and transform functions for:
+  - inventory points
+  - heatmap points
+  - zone activity stats
+  - robot hour stats
+- Keep throughput sourced from total_events as the reliable metric
+- Include defensive handling for partial or empty query results
+
+Project structure requirements:
+- Keep a structure similar to:
+  - src/App.tsx
+  - src/fabric.generated.ts
+  - src/components
+  - src/hooks (auth + theme + semantic model query hook)
+  - src/lib (fabric client, rayfin client, data table conversion)
+  - src/services (rayfin auth service)
+  - src/test/setup
+- Include tests for:
+  - semantic model query hook behavior
+  - table conversion utilities
+
+Developer experience requirements:
+- Provide npm scripts for dev, build, lint, test
+- Include predev/prebuild environment generation via rayfin env for Vite
+- Add clear README with setup, run, test, and Fabric portal devUri instructions
+- Do not leave TODO stubs; generate complete working code
+
+At the end:
+1. Show all created/updated files.
+2. Show exact commands to run locally.
+3. Show how to validate the dataset connection and each query.
